@@ -1,0 +1,541 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>Catch Seeds</title>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: optima, sans-serif;
+            width: auto;
+            height: auto;
+            margin: 0px;
+            font-size: 16px;
+        }
+
+        #canvas {
+            background-image: url(../images/bggame.png);
+        }
+
+        .ScoreBoard {
+            padding: 15px;
+            background: #fefefe;
+            display: block;
+            position: absolute;
+            background: transparent;
+            margin-left: 580px;
+        }
+
+        .info {
+            display: inline-block;
+            margin-top: 10px;
+            margin-left: 5px;
+        }
+
+        .score {
+            float: left;
+            margin-left: -580px;
+            margin-top: 0px;
+            font-size: 30px;
+            color: rgb(255, 255, 255);
+        }
+
+        #Score {
+            margin-left: 30px;
+        }
+
+        .button {
+            display: inline-block;
+            outline: none;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            border: 0px;
+            background: transparent;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+
+<body style="overflow:hidden;">
+    <div class="ScoreBoard">
+        <div class="score">Score<br><span id="Score">0</span></div>
+        <button class="button" id="StartG" value="Start">
+      <img src="../images/start.png" alt="" style="height:25px;border-radius:10px;">
+    </button>
+        <button class="button" id="StopG" value="Pause">
+      <img src="../images/stop.png" alt="" style="height:25px;border-radius:10px;">
+    </button>
+        <button class="button" id="ResetG" value="Restart">
+      <img src="../images/restart.png" alt="" style="height:25px;border-radius:10px;">
+    </button> <br/>
+        <div>
+            <div class="info" style="margin-left: 28px;">Volume: <input type="range" min="0" max="100" id="Volume" value="50" style="height: 10px;"></div>
+            <div class="info">Time left: <span id="Time">7:00</span></div>
+        </div>
+        <audio class="music" loop id="MusicBgm">
+            <source src="../images/gameStart.mp3">
+        </audio>
+        <audio class="music" id="MusicCatch">
+            <source src="../images/catch.mp3">
+        </audio>
+        <audio class="music" id="MusicHit">
+            <source src="../images/hit.mp3">
+        </audio>
+        <audio class="music" id="MusicOver">
+            <source src="../images/gameOver.mp3">
+        </audio>
+    </div>
+    <canvas id="canvas" width="1005" height="655"></canvas>
+    <script>
+        var interval;
+        var frame = 20,
+            TotalTime = 420,
+            LeftTime = TotalTime;
+        var StartTime = Date.now();
+        var timeDiv = document.getElementById("Time");
+        var Audios = [document.getElementById("MusicBgm"), document.getElementById("MusicCatch"), document.getElementById("MusicHit"), document.getElementById("MusicOver")];
+        var LEFT = 37,
+            UP = 38,
+            RIGHT = 39,
+            DOWN = 40,
+            C = 67; // KeyCode
+        var keyDown = {};
+        var speed = 200;
+        var SeedSize = 24; // max radius
+        var GrowTime = 4000 + 4000 + 3000; // grow time and change color time and stay time
+        var boxs = [
+            [200 + 100 * Math.random(), 440 + 50 * Math.random(), GrowTime]
+        ]; // init with one
+        var score = 0;
+        var scoreDiv = document.getElementById("Score");
+        var ManW = 350,
+            ManH = 183,
+            HeadW = 180;
+        var ManRW = 215,
+            ManRH = 280,
+            HeadRW = 140;
+        var manStat = "R";
+        document.getElementById("StartG").onclick = startGame;
+        document.getElementById("StopG").onclick = stopGame;
+        var cn = document.getElementById('canvas');
+        var ctx = cn.getContext("2d");
+
+        var ManX = 340,
+            ManY = 100; // position in canvas
+
+        var face = 0;
+
+        var imgMrX = new Image();
+        var imgMrX_V = new Image();
+        imgMrX_V.src = "../images/MrX_V.png";
+        imgMrX.src = "../images/MrX.png";
+        var imgMrXR = new Image();
+        var imgMrXR_V = new Image();
+        imgMrXR.src = "../images/MrXR.png";
+        imgMrXR_V.src = "../images/MrXR_V.png";
+        var Direction = {
+            Left: imgMrX_V,
+            Right: imgMrX,
+            LeftR: imgMrXR_V,
+            RightR: imgMrXR
+        }; // man status
+        var direction = Direction.LeftR; // default direction
+
+        function startGame() {
+            interval = setInterval(run, frame);
+            playMusic(0);
+        }
+
+
+        function stopGame() {
+            stopMusic(0);
+            clearInterval(interval);
+        }
+
+
+        function gameOver() {
+            stopGame();
+            ctx.clearRect(0, 0, 1005, 655);
+            playMusic(3);
+            LeftTime = TotalTime;
+
+            face = 0;
+            direction = Direction.LeftR;
+            boxs = [
+                [200 + 100 * Math.random(), 440 + 50 * Math.random(), GrowTime]
+            ];
+            alert("Game over! Your score is: " + score);
+            score = 0;
+            timeDiv.innerHTML = "7:00";
+            scoreDiv.innerHTML = 0;
+        }
+        document.getElementById("ResetG").onclick = function() {
+            stopGame();
+            ctx.clearRect(0, 0, 1005, 655);
+            playMusic(3);
+            LeftTime = TotalTime;
+
+            face = 0;
+            direction = Direction.LeftR;
+            boxs = [
+                [200 + 100 * Math.random(), 440 + 50 * Math.random(), GrowTime]
+            ];
+            score = 0;
+            timeDiv.innerHTML = "7:00";
+            scoreDiv.innerHTML = 0;
+            startGame();
+            scoreDiv.innerHTML = 0;
+        };
+
+
+        function run() {
+            moveBlock((Date.now() - StartTime) / 1000);
+            StartTime = Date.now();
+            updateTime();
+        }
+
+        // update time left
+
+        function updateTime() {
+            LeftTime -= frame / 1000;
+            if (LeftTime <= 0) {
+                gameOver();
+                return;
+            }
+
+            var m = parseInt(LeftTime / 60);
+            var s = parseInt(LeftTime % 60);
+            s = s >= 10 ? s : "0" + s;
+            timeDiv.innerHTML = m + ":" + s;
+        }
+
+
+        // init valume
+        for (var i = 0; i < Audios.length; i++)
+            Audios[i].volume = 0.5;
+
+        document.getElementById("Volume").onchange = function() {
+            for (var i = 0; i < Audios.length; i++)
+                Audios[i].volume = this.value / 100;
+        };
+
+        // music control
+        function playMusic(ind) {
+            Audios[ind].currentTime = 0;
+            Audios[ind].play();
+        }
+
+        function stopMusic(ind) {
+            Audios[ind].pause();
+        }
+
+
+
+        function drawMan(manStatus) {
+            if (manStatus == "R") {
+                ctx.clearRect(0, 0, 1005, 655);
+                ctx.drawImage(direction, ManX - 1, ManY - 1, ManRW, ManRH);
+            }
+            if (manStatus == "C1") {
+                ctx.clearRect(0, 0,1005, 655);
+                ctx.drawImage(direction, ManX + 40, ManY + 100, ManW, ManH);
+            }
+            if (manStatus == "C2") {
+                ctx.clearRect(0, 0, 1005, 655);
+                ctx.drawImage(direction, ManX - 180, ManY + 100, ManW, ManH);
+            }
+            var gradient = ctx.createLinearGradient(0, 0, 800, 0);
+            gradient.addColorStop("0", "rgb(254, 113, 193)");
+            gradient.addColorStop("0.5", "rgb(33, 205, 210)");
+            gradient.addColorStop("1.0", "rgb(103, 103, 103)");
+            ctx.font = "18px Verdana";
+            ctx.fillStyle = gradient;
+            ctx.fillText("Use ↑←↓→ to move, press \"C\" to turn off basket", 530, 100);
+
+        }
+
+        var xp = 15;
+        var yp = 15;
+        var xp_add = 0.5;
+        var yp_add = 0.5;
+
+        function moveEyes(xb, yb) {
+            xp += xp_add;
+            if (xp > 15 || xp < 0) xp_add = -xp_add;
+            doEyes(xb, yb, xp, yp);
+        }
+
+        function doEyes(xb, yb, xp, yp) {
+
+
+            if (direction == Direction.Left || direction == Direction.LeftR) {
+                // draw 2 blue circles
+                ctx.beginPath();
+                ctx.fillStyle = 'black';
+                ctx.arc(xb + 55 + xp, yb + yp + 170, 5, 30, Math.PI * 2, true);
+                ctx.fill();
+                ctx.closePath();
+                ctx.lineWidth = "2";
+                ctx.strokeStyle = "blue";
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(xb + xp + 80, yb + yp + 170, 5, 30, Math.PI * 2, true);
+                ctx.fill();
+                ctx.closePath();
+                ctx.lineWidth = "2";
+                ctx.strokeStyle = "blue";
+                ctx.stroke();
+            }
+            if (direction == Direction.Right || direction == Direction.RightR) {
+                // draw 2 blue circles
+                ctx.beginPath();
+                ctx.fillStyle = 'black';
+                ctx.arc(xb + 118 + xp, yb + yp + 170, 5, 30, Math.PI * 2, true);
+                ctx.fill();
+                ctx.closePath();
+                ctx.lineWidth = "2";
+                ctx.strokeStyle = "blue";
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(xb + xp + 143, yb + yp + 170, 5, 30, Math.PI * 2, true);
+                ctx.fill();
+                ctx.closePath();
+                ctx.lineWidth = "2";
+                ctx.strokeStyle = "blue";
+                ctx.stroke();
+            }
+        }
+
+
+        // keyboard event
+
+        window.addEventListener('keydown', function(e) {
+            keyDown[e.keyCode] = true;
+        });
+        window.addEventListener('keyup', function(r) {
+            delete keyDown[r.keyCode];
+        });
+
+        // man move
+
+        function moveBlock(mod) {
+            if (DOWN in keyDown) {
+                direction = Direction.RightR;
+                manStat = "R";
+                if (ManY < 130)
+                    ManY += speed * mod;
+            }
+            if (UP in keyDown) {
+                direction = Direction.LeftR;
+                manStat = "R";
+                if (ManY > 30)
+                    ManY -= speed * mod;
+            }
+            if (RIGHT in keyDown) {
+                direction = Direction.RightR;
+                manStat = "R";
+                if (ManX < 700)
+                    ManX += speed * mod;
+            }
+
+            if (LEFT in keyDown) {
+                direction = Direction.LeftR;
+                manStat = "R";
+                if (ManX > 60)
+                    ManX -= speed * mod;
+            }
+            if (C in keyDown) {
+                if (direction == Direction.RightR) {
+                    manStat = "C1";
+                    direction = Direction.Right;
+                }
+                if (direction == Direction.LeftR) {
+                    manStat = "C2";
+                    direction = Direction.Left;
+                }
+            } else {
+                if (direction == Direction.Right) {
+                    manStat = "R";
+                    direction = Direction.RightR;
+                }
+                if (direction == Direction.Left) {
+                    manStat = "R";
+                    direction = Direction.LeftR;
+                }
+            }
+            drawMan(manStat);
+            moveEyes(ManX, ManY);
+            updateSeeds();
+            check(ManX, ManY);
+        }
+
+        function updateSeeds() {
+            // appeared randomly
+            if (Math.random() < 0.05) {
+                var nx = Math.floor(Math.random() * 900);
+                var ny = Math.floor(Math.random() * 230);
+
+                if (nx > 100 && ny > 120 && nx % 2 == 0)
+                    boxs.push([nx, ny + 400, GrowTime]);
+            }
+
+            // grow or float
+            for (var i = boxs.length - 1; i >= 0; i--) {
+                if (boxs[i][2] <= frame)
+                    boxs[i][1] -= 1.25; // float, last for 7 seconds
+                if (boxs[i][1] < 20)
+                    boxs.splice(i, 1); // disappear
+                else {
+                    var ratio = (GrowTime - boxs[i][2]) / GrowTime;
+                    // get current size
+                    var r = 6 + 50 * ratio; // 6 is min radius
+                    if (r > SeedSize)
+                        r = SeedSize;
+
+                    //          var color = ratio * 75;
+                    //          if (color > 60)
+                    //            color = 60;
+
+                    ctx.beginPath();
+                    ctx.arc(boxs[i][0], boxs[i][1], r, 0, 2 * Math.PI);
+                    ctx.fillStyle = getGradientByRatio(boxs[i][0], boxs[i][1], r, ratio);
+                    ctx.fill();
+                    ctx.closePath();
+
+                    // grow time decrease
+                    if (boxs[i][2] >= frame)
+                        boxs[i][2] -= frame;
+                }
+            }
+        }
+
+        // get gradient color
+        function getGradientByRatio(x, y, r, ratio) {
+            var gr = ctx.createRadialGradient(x, y, 0, x, y, r);
+            gr.addColorStop(0, getColorByRatio(ratio));
+            gr.addColorStop(0.6, getColorByRatio(ratio));
+            gr.addColorStop(1, getColorByRatio(1));
+            return gr;
+        }
+
+        function getColorByRatio(ratio) {
+            var r = 0,
+                g = 0,
+                b = 0;
+
+            if (ratio < 0.36) {
+                r = 50;
+                g = 205;
+                b = 50;
+            } else if (ratio >= 0.36 && ratio < 0.73) {
+                r = 554 * ratio - 149;
+                g = 292 - 241 * ratio;
+                b = 178 * ratio - 14;
+            } else if (ratio >= 0.73) {
+                r = 255;
+                g = 116;
+                b = 116;
+            }
+            r = parseInt(r);
+            g = parseInt(g);
+            b = parseInt(b);
+
+            return "rgb(" + r + "," + g + "," + b + ")";
+        }
+
+
+
+        function check(ManX, ManY) {
+            for (var i = boxs.length - 1; i >= 0; i--) {
+                var x = boxs[i][0];
+                var y = boxs[i][1];
+                if (manStat == "R") {
+                    if (boxs[i][2] < frame) {
+                        if (collisionR(ManX, ManY, ManRW, HeadRW, x, y, SeedSize)) {
+                            scoreDiv.innerHTML = ++score;
+                            boxs.splice(i, 1);
+                            playMusic(1);
+                        } else if (hitR(ManX, ManY, ManRW, HeadRW, x, y, SeedSize)) {
+                            scoreDiv.innerHTML = --score;
+                            boxs.splice(i, 1);
+                            playMusic(2);
+                        }
+                    }
+                } else {
+                    if (boxs[i][2] < frame) {
+                        if (collision(ManX, ManY, ManW, ManH, HeadW, x, y, SeedSize)) {
+                            scoreDiv.innerHTML = ++score;
+                            boxs.splice(i, 1);
+                            playMusic(1);
+                        } else if (hit(ManX, ManY, ManW, ManH, HeadW, x, y, SeedSize)) {
+                            scoreDiv.innerHTML = --score;
+                            boxs.splice(i, 1);
+                            playMusic(2);
+                        }
+                    }
+                }
+            }
+        }
+
+        // catch
+        function collision(x1, y1, w, h, headW, x2, y2, r) {
+            if (direction == Direction.Left) {
+                if (x1 - 180 > x2 + r || x1 + (w - headW) - 180 < x2 - r)
+                    return false;
+            }
+            if (direction == Direction.Right) {
+                if (x1 + 40 + w < x2 - r || x1 + 40 + (w - headW) > x2 + r)
+                    return false;
+            }
+            if (y1 + 100 > y2 + r || y1 + h + 100 < y2 - r) {
+                return false;
+            }
+
+            return true;
+        }
+
+        function collisionR(x1, y1, w, h, x2, y2, r) {
+            if (x1 + w < x2 - r || x1 > x2 + r) {
+                return false;
+            }
+            if (y1 > y2 + r || y1 + h < y2 - r) {
+                return false;
+            }
+            return true;
+        }
+
+        // hit
+        function hit(x1, y1, w, h, headW, x2, y2, r) {
+
+            if (direction == Direction.Left) {
+                if (x1 - 180 + w < x2 - r || x1 - 180 + (w - headW) > x2 + r)
+                    return false;
+            }
+            if (direction == Direction.Right) {
+                if (x1 + 40 > x2 + r || x1 + (w - headW) + 40 < x2 - r)
+                    return false;
+            }
+            if (y1 + 100 > y2 + r || y1 + h + 100 < y2 - r) {
+                return false;
+            }
+
+            return true;
+        }
+        // hitR
+        function hitR(x1, y1, w, h, x2, y2, r) {
+            if (x1 + w < x2 - r || x1 > x2 + r) {
+                return false;
+            }
+            if (y1 + 140 > y2 + r || y1 + 140 + h < y2 - r) {
+                return false;
+            }
+            return true;
+        }
+    </script>
+</body>
+
+</html>

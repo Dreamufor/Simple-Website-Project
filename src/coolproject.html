@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src="./jquery.min.js"></script>
+  <style media="screen">
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 1000px;
+      height: 650px;
+      background-image: url(../images/bgb.png);
+    }
+
+    .left {
+      width: 250px;
+      height: 650px;
+      display: table;
+      float: left;
+      text-align: center;
+    }
+
+    .right {
+      width: 750px;
+      height: 650px;
+      margin-left: 250px;
+    }
+
+    .pbg {
+      background-image: url(../images/bgg.jpeg);
+      background-repeat: repeat;
+      border-radius: 30px;
+      overflow: hidden;
+      margin-top: -1.5px;
+    }
+
+    .topRight {
+      height: 80px;
+    }
+
+    .icon {
+      width: 250px;
+      height: auto;
+      clear: both;
+      display: inline;
+      margin-top: 10px;
+    }
+
+    .setting {
+      margin: 0px auto auto 10px;
+      width: 230px;
+      height: 550px;
+      border: 2px solid rgba(229, 236, 246, 1);
+      border-radius: 5px 5px 50px 50px;
+      overflow: hidden;
+    }
+
+    .settings {
+      height: 88px;
+      position: relative;
+      font-family: optima, sans-serif;
+    }
+
+    .img {
+      width: 45px;
+    }
+
+    .btn {
+      background-color: rgba(179, 232, 250, 0.93);
+      height: 20px;
+      width: 90px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-family: sans-serif;
+      margin: 6px;
+      font-weight: bold;
+      border: 0px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    button:active {
+      background-color: rgba(255, 200, 182, 0.95);
+    }
+
+    button.selected {
+      background-color: rgba(255, 200, 182, 0.95);
+    }
+
+    .choose {
+      background-color: rgba(170, 170, 170, 1);
+      color: white;
+      display: block;
+      width: 230px;
+      text-align: left;
+      padding-left: 9px;
+    }
+
+    .projectName {
+      display: block;
+      text-align: center;
+      width: 750px;
+      height: 50px;
+      background-image: url(../images/pname.png);
+      font-size: 39px;
+      font-family: Courier New, monospace;
+      color: rgb(255, 255, 255);
+      font-weight: 550;
+      border-radius: 50px 10px 10px 10px;
+      opacity: 0.8;
+      margin-bottom: 1.2px;
+    }
+
+    #loop-count {
+      -moz-appearance: textfield;
+      -webkit-appearance: none;
+      width: 30px;
+      border: 0px;
+      font-size: 15px;
+      text-align: center;
+      border-radius: 5px;
+      background-color: rgba(254, 233, 230, 1);
+      margin-top: -2px;
+    }
+
+    #loop-range {
+      vertical-align: middle;
+    }
+
+    .abcd {
+      border: 5px solid rgba(255, 255, 255, 0);
+      border-radius: 20px;
+      margin-top: 2px;
+      width: 35px;
+      height: auto;
+    }
+
+    .insect-size-small {
+      width: 30px;
+    }
+
+    .insect-size-medium {
+      width: 45px;
+    }
+
+    .insect-size-large {
+      width: 60px;
+    }
+
+    .anim-obj {
+      position: absolute;
+      transform: translate(-50%, -50%)
+    }
+
+    .map {
+      position: relative;
+      float: left;
+      width: 49.6%;
+      border: 0.2px solid rgba(255, 255, 255, 0.89);
+    }
+  </style>
+</head>
+
+<body style="overflow:hidden;">
+  <div class="left">
+    <img class="icon" src="../images/setting.png" alt="setting">
+    <div class="setting">
+      <div class="settings">
+        <span class="choose">1 Choose a insect</span>
+        <div>
+          <input type="radio" name="insect" checked value="btfly" />
+          <img src="../images/btfly.gif" alt="butterfly" class="img">
+          <input type="radio" name="insect" value="fly" />
+          <img src="../images/fly.gif" alt="fly" class="img">
+          <input type="radio" name="insect" value="beetle" />
+          <img src="../images/beetle.gif" alt="beetle" class="img">
+        </div>
+      </div>
+      <div class="settings">
+        <span class="choose">2 Choose the size</span>
+        <div>
+          <input type="radio" name="cSize" value='small' checked/>
+          <img class="insect-size-small" id="insect-size-small" />
+          <input type="radio" name="cSize" value='medium' />
+          <img class="insect-size-medium" id="insect-size-medium" />
+          <input type="radio" name="cSize" value='large' />
+          <img class="insect-size-large" id="insect-size-large" />
+        </div>
+      </div>
+      <div class="settings">
+        <span class="choose">3 Choose directions</span>
+        <div>
+          <button class="btn" id="forward" onclick='selectDirection(0)'>Forward</button>
+          <br>
+          <button class="btn" id="backward" onclick='selectDirection(1)'>Backward</button>
+        </div>
+      </div>
+      <div class="settings">
+        <span class="choose">4 Choose start point</span>
+        <div>
+          <button class="btn" id="point1" onclick='selectPoint(0)'>Point 1</button>
+          <button class="btn" id="point2" onclick='selectPoint(1)'>Point 2</button>
+          <br>
+          <button class="btn" id="point3" onclick='selectPoint(2)'>Point 3</button>
+          <button class="btn" id="point4" onclick='selectPoint(3)'>Point 4</button>
+        </div>
+      </div>
+      <div class="settings">
+        <span class="choose">5 Choose number of loop</span>
+        <br>
+        <div>
+          <input type="range" min="1" max="10" id="loop-range" oninput="onLoopChange()">
+          <input type="number" id="loop-count" readonly placeholder="0">
+        </div>
+      </div>
+      <div class="settings">
+        <span class="choose">6 Add to Picture</span>
+        <span>
+          <button id="add-image-a" onclick='selectImage(0)' style="border:0px;border-radius:25px;outline:none;">
+            <img src="../images/A.png" alt="" class="abcd">
+          </button>
+        </span>
+        <span>
+          <button id="add-image-b" onclick='selectImage(1)' style="border:0px;border-radius:25px;outline:none;">
+            <img src="../images/B.png" alt="" class="abcd">
+          </button>
+        </span>
+        <span>
+          <button id="add-image-c" onclick='selectImage(2)' style="border:0px;border-radius:25px;outline:none;">
+            <img src="../images/C.png" alt="" class="abcd">
+          </button>
+        </span>
+        <span>
+          <button id="add-image-d" onclick='selectImage(3)' style="border:0px;border-radius:25px;outline:none;">
+            <img src="../images/D.png" alt="" class="abcd">
+          </button>
+        </span>
+        <button class="btn" id="submit" onclick="submit()">Submit</button>
+      </div>
+    </div>
+  </div>
+  <div class="right">
+    <div class="topRight">
+      <span class="projectName">Animated Insects Demonstration</span>
+      <span>
+        <button onclick="doAnimAction()" style="border:0px;background-color: rgba(255, 255, 255, 0);outline:none;cursor: pointer;">
+          <img src="../images/start.png" alt="" style="height:25px;border-radius:10px;">
+        </button>
+      </span>
+      <span>
+        <button onclick="doAnimAction()" style="border:0px;background-color: rgba(255, 255, 255, 0);outline:none;cursor: pointer;">
+          <img src="../images/stop.png" alt="" style="height:25px;border-radius:10px;">
+        </button>
+      </span>
+      <span>
+        <button onclick="resetAnim()" style="border:0px;background-color: rgba(255, 255, 255, 0);outline:none;cursor: pointer;">
+          <img src="../images/restart.png" alt="" style="height:25px;border-radius:10px;">
+        </button>
+      </span>
+    </div>
+    <div class="pbg">
+      <div class="map" id="map1">
+        <img src="../images/1.png" alt="" style="width:auto;height:280px">
+      </div>
+      <div class="map" id="map2">
+        <img src="../images/2.png" alt="" style="width:auto;height:280px">
+      </div>
+      <div class="map" id="map3">
+        <img src="../images/3.png" alt="" style="width:auto;height:280px">
+      </div>
+      <div class="map" id="map4">
+        <img src="../images/4.png" alt="" style="width:auto;height:280px">
+      </div>
+
+    </div>
+  </div>
+</body>
+<script type="text/javascript">
+  //set images source and name
+  var src_btfly = '../images/btfly.gif';
+  var src_fly = '../images/fly.gif'
+  var src_beetle = '../images/beetle.gif'
+
+  var name_btfly = 'btfly';
+  var name_fly = 'fly';
+  var name_beetle = 'beetle';
+
+  var anim_line_duration = 2500;
+
+  function StateObj(insect, insectSize, direction, startPoint, loop, map) {
+    this.insect = insect;
+    this.size = insectSize;
+    this.direction = direction;
+    this.startPoint = startPoint;
+    this.loop = loop;
+    this.map = map;
+
+    this.ele = null;
+  }
+
+  StateObj.prototype = {
+    moveToIndex: function(index) {
+      var mapObj = map_list[this.map];
+      index = index % mapObj.length;
+      var point = mapObj[index];
+
+      this.moveToPos(point[0], point[1]);
+    },
+
+    moveToPos(left, top) {
+      if (!this.ele) {
+        return;
+      }
+
+      var parentSize = this.getParentSize();
+      if (!parentSize) {
+        return;
+      }
+
+      this.ele.css({
+        left: parentSize.w * left,
+        top: parentSize.h * top
+      })
+    },
+
+    getParentSize: function() {
+      if (!this.ele) return null;
+      var parent = this.ele.parent();
+      if (!parent) {
+        return null;
+      }
+
+      return {
+        w: parent.width(),
+        h: parent.height()
+      }
+    },
+
+    update: function(elapseTime) {
+      var rate = elapseTime / anim_line_duration;
+
+      var curIndex = parseInt(rate);
+      var nextIndex;
+
+      rate = rate - curIndex;
+
+      var mapObj = map_list[this.map];
+
+      var curLoopCount = parseInt(curIndex / mapObj.length);
+      if (curLoopCount >= this.loop) {
+        this.reset();
+        return;
+      }
+
+      var coefficient = this.direction == 0 ? 1 : -1;
+      curIndex = this.startPoint + coefficient * curIndex;
+      nextIndex = curIndex + coefficient;
+
+      var p1 = mapObj[this.clamp(curIndex, mapObj.length)];
+      var p2 = mapObj[this.clamp(nextIndex, mapObj.length)];
+
+      var x = p1[0] + (p2[0] - p1[0]) * rate;
+      var y = p1[1] + (p2[1] - p1[1]) * rate;
+
+      this.moveToPos(x, y);
+    },
+    clamp: function(index, length) {
+      var sy = index % length;
+      if (sy < 0) {
+        return length + sy;
+      } else {
+        return sy;
+      }
+    },
+    reset: function() {
+      this.moveToIndex(this.startPoint);
+    },
+    // remove self from parent element
+    detach: function() {
+      if (this.ele) {
+        this.ele.remove();
+      }
+    }
+  }
+
+  $(document).ready(function() {
+    $('input[name=insect]').on('click', function() {
+      switchSizeSrc();
+    })
+    resetSelectors();
+  })
+
+  function resetSelectors() {
+    $('input[name=insect][value=btfly]').attr('checked')
+    $('input[name=cSize][value=small]').attr('checked')
+    switchSizeSrc();
+    selectDirection(0);
+    selectPoint(0);
+    setLoopCount(0);
+    selectImage(0);
+  }
+
+  function getSelectedInsect() {
+    return $('input[name=insect]:checked').val();
+  }
+
+  function getInsectSrc(insect) {
+    if (insect == name_btfly) {
+      return src_btfly;
+    } else if (insect == name_fly) {
+      return src_fly;
+    } else if (insect == name_beetle) {
+      return src_beetle;
+    } else {
+      return src_btfly;
+    }
+  }
+
+  function switchSizeSrc() {
+    var insect = getSelectedInsect();
+
+    function setSrc(src) {
+      ['small', 'medium', 'large'].forEach(function(size) {
+        $('#insect-size-' + size).attr('src', src);
+      })
+    }
+
+    setSrc(getInsectSrc(insect));
+  }
+
+  function getSelectedSize() {
+    return $('input[name=cSize]:checked').val();
+  }
+
+  function selectBtn(selectors, index) {
+    selectors.forEach(function(selector) {
+      $(selector).removeClass('selected');
+    })
+    $(selectors[index]).addClass('selected');
+  }
+
+  function getSelectBtnIndex(selectors) {
+    for (var i = 0; i < selectors.length; i++) {
+      if ($(selectors[i]).hasClass('selected')) {
+        return i;
+      }
+    }
+    // should not get here, something wrong
+    return -1;
+  }
+
+  var directionSelectors = ['#forward', '#backward'];
+  var pointSelectors = ['#point1', '#point2', '#point3', '#point4'];
+  var imageSelectors = ['#add-image-a', '#add-image-b', '#add-image-c', '#add-image-d'];
+
+  function selectDirection(index) {
+    selectBtn(directionSelectors, index);
+  }
+
+  function getDirectionIndex() {
+    return getSelectBtnIndex(directionSelectors);
+  }
+
+  function selectPoint(index) {
+    selectBtn(pointSelectors, index);
+  }
+
+  function getPointIndex() {
+    return getSelectBtnIndex(pointSelectors);
+  }
+
+  function getLoopCount() {
+    return $('#loop-range').val();
+  }
+
+  function setLoopCount(count) {
+    var rangeEle = $('#loop-range');
+    var min = rangeEle.attr('min') || 0;
+    var max = rangeEle.attr('max') || 10;
+    if (count > max) count = max;
+    if (count < min) count = min;
+
+    $('#loop-range').val(count);
+    $('#loop-count').val(count);
+  }
+
+  function onLoopChange() {
+    $('#loop-count').val(getLoopCount());
+  }
+
+  function selectImage(index) {
+    selectBtn(imageSelectors, index);
+  }
+
+  function getImageIndex() {
+    return getSelectBtnIndex(imageSelectors);
+  }
+
+  // 添加的state对象
+  var stateObjList = [];
+
+  var isAnimStart = false;
+
+
+  function submit() {
+    var insect = getSelectedInsect();
+    var size = getSelectedSize();
+    var direction = getDirectionIndex();
+    var point = getPointIndex();
+    var loop = getLoopCount();
+    var image = getImageIndex();
+
+    var state = new StateObj(insect, size, direction, point, loop, image);
+    if (canAddState(state)) {
+      stateObjList.push(state);
+      updateStateList();
+    }
+  }
+
+  window.requestAnimFrame = (function() {
+    return window.requestAnimationFrame ||
+      window.webkitRequestAnimationFrame ||
+      window.mozRequestAnimationFrame ||
+      function(callback) {
+        window.setTimeout(callback, 1000 / 60);
+      };
+  })();
+
+  var startAnimTime;
+
+  function doAnimAction() {
+    if (isAnimStart) {
+      // stop animation
+      isAnimStart = false;
+      stateObjList.forEach(function(state) {
+        state.reset();
+      });
+    } else {
+      // start animation
+      isAnimStart = true;
+      startAnimTime = currentTime();
+      updateAnim();
+    }
+  }
+
+  function currentTime() {
+    return new Date().getTime();
+  }
+
+  function updateAnim() {
+    if (!isAnimStart) {
+      return;
+    }
+    var elapseTime = currentTime() - startAnimTime;
+    stateObjList.forEach(function(state) {
+      state.update(elapseTime);
+    });
+
+    requestAnimationFrame(updateAnim);
+  }
+
+  function resetAnim() {
+    isAnimStart = false;
+    stateObjList.forEach(function(state) {
+      state.detach();
+    })
+    stateObjList = [];
+    resetSelectors();
+  }
+
+  //get the xml document
+  function getDataFromXml() {
+    var xmlhttp;
+    if (window.XMLHttpRequest) {
+      // code for IE7+, Firefox, Chrome, Opera, Safari
+      xmlhttp = new XMLHttpRequest();
+    } else {
+      // code for IE6, IE5
+      xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    xmlhttp.open("GET", "map.xml", false);
+    xmlhttp.send();
+    xmlDoc = xmlhttp.responseXML;
+    return xmlDoc;
+  }
+
+  var xmlDoc = getDataFromXml();
+
+  function parseNode(tagName) {
+    var node = xmlDoc.getElementsByTagName(tagName)[0];
+    var result = [];
+    for (var i = 0; i < node.children.length; i++) {
+      var point = node.children[i];
+      var x = Number(point.children[0].childNodes[0].nodeValue);
+      var y = Number(point.children[1].childNodes[0].nodeValue);
+      result.push([x, y]);
+    }
+    return result;
+  }
+
+  var map_list = [
+    parseNode('A'), parseNode('B'), parseNode('C'), parseNode('D')
+  ]
+
+  function canAddState(candidate) {
+    var canAdd = true;
+    var message = '';
+    if (isAnimStart) {
+      canAdd = false;
+      message = "Animation has been started, please stop before going on."
+    } else {
+      for (var i = 0; i < stateObjList.length; i++) {
+        var state = stateObjList[i];
+        if (candidate.map == state.map) {
+          canAdd = false;
+          message = 'Animation has been added to this picture.';
+          break;
+        }
+      }
+    }
+
+    var mapObj = map_list[candidate.map];
+    if (mapObj && candidate.startPoint >= mapObj.length) {
+      canAdd = false;
+      message = 'Start point has exceeded the max value ' + mapObj.length;
+    }
+
+    if (!canAdd) {
+      alert(message);
+    }
+    return canAdd;
+  }
+
+  function updateStateList() {
+    stateObjList.forEach(function(state) {
+      var mapEle = $('#map' + (state.map + 1));
+      if (state.ele) {
+        state.ele.remove();
+        state.ele = null;
+      }
+
+      var objEle = $(document.createElement('img'));
+      objEle.attr('src', getInsectSrc(state.insect));
+      objEle.addClass('insect-size-' + state.size);
+      objEle.addClass('anim-obj');
+      state.ele = objEle;
+      mapEle.append(objEle);
+      state.reset();
+    })
+  }
+</script>
+
+</html>

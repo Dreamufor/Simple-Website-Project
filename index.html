@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title></title>
+  <link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+  <div class="main">
+    <div id="title">Taupo Boat Adventure</div>
+    <div class="menu">
+      <nav>
+        <ul>
+          <li onclick="changeTap(this);load()" class="active"><a href="#">Home</a></li>
+          <li onclick="changeTap(this);loadBoat()"><a href="#">Book Boat</a></li>
+          <li onclick="changeTap(this);loadGame()"><a href="#">Play Game</a></li>
+          <li onclick="changeTap(this);loadProject()"><a href="#">Cool Project</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div id="main-section">
+      <span id="coolProject" style="overflow:hidden;"></span>
+      <span id="bookBoat" style="overflow:hidden;"></span>
+      <span id="playGame" style="overflow:hidden;"></span>
+      <div id="leftS">
+        <img src="./images/tp.jpg" style="width:658px;height:auto;margin-bottom:-5px;border-radius:50px 50px 0 0;" alt="">
+        <iframe width="658" height="368" src="https://www.youtube.com/embed/2HNrW4azzwI?rel=0&amp;showinfo=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        <div class="desp">
+          It wouldn’t be a trip to Great Lake Taupo without some exploring on the lake or along the mighty Waikato River. A scenic cruise is the perfect way to enjoy the water and Taupo’s stunning vistas.</div>
+      </div>
+      <div id="rightS">
+        <div id="scroll">
+          <div class="content">
+            <ul>
+              <li style="list-style:none;"><img src="images/ad1.jpg" alt="1" width="330" height="218.4" /></li>
+              <li style="list-style:none;"><img src="images/ad2.jpg" alt="2" width="330" height="218.4" /></li>
+              <li style="list-style:none;"><img src="images/ad3.jpg" alt="3" width="330" height="218.4" /></li>
+              <li style="list-style:none;"><img src="images/ad4.jpg" alt="4" width="330" height="218.4" /></li>
+              <li style="list-style:none;"><img src="images/ad5.jpg" alt="5" width="330" height="218.4" /></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+<script type="text/javascript" src="./src/script.js">
+</script>
+<footer>©2018 ZhangMengxue_WangYuyue</footer>
+</html>

@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="./jquery.min.js"></script>
+    <title>Book boat</title>
+    <style media="screen">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            width: 1000px;
+            height: 650px;
+            font-family: optima, sans-serif;
+        }
+
+        .wrapper {
+            display: flex;
+            width: 1000px;
+            height: 645px;
+            border: 0.01px solid rgba(255, 255, 255, 1);
+            border-radius: 0px;
+            overflow: hidden;
+        }
+
+        .left {
+            width: 225px;
+            height: 645px;
+            background-color: rgba(236, 249, 255, 0.48);
+        }
+
+        .middle {
+            width: 500px;
+            height: 645px;
+            background-color: rgba(255, 255, 255, 0);
+        }
+
+        .right {
+            width: 275px;
+            height: 645px;
+            background-color: rgba(236, 249, 255, 0.48);
+        }
+
+        .notes {
+            margin-left: 0px;
+            width: 200px;
+            color: rgba(89, 89, 89, 0.99);
+            padding-left: 25px;
+            font-size: 17px;
+            margin-top: 10px;
+            background-color: rgb(255, 233, 246);
+        }
+
+        table {
+            text-align: center;
+            margin-top: 20px;
+            margin-left: 42px;
+            border-spacing: 6px;
+            font-family: optima, sans-serif;
+            font-size: 15px;
+        }
+
+        td {
+            background-color: rgba(159, 254, 170, 1);
+            height: 22px;
+            width: 32px;
+            border-radius: 5px;
+            cursor: pointer;
+            vertical-align: middle;
+        }
+
+        .txt {
+            margin-left: 30px;
+            margin-top: 15px;
+            font-family: sans-serif;
+            border-radius: 5px;
+            color: rgba(84, 82, 84, 0.94);
+            font-size: 18px;
+            width: 160px;
+        }
+
+        .dts {
+            position: relative;
+            font-family: sans-serif;
+            -moz-appearance: textfield;
+            -webkit-appearance: none;
+            font-size: 16px;
+            background-color: rgba(193, 194, 251, 0.42);
+            border: 0px;
+            width: 180px;
+            margin-top: 10px;
+            vertical-align: middle;
+            color: rgba(84, 82, 84, 0.94);
+            padding: 5px;
+        }
+
+        #dt {
+            border: 0.1px solid #007bff;
+            font-size: 18px;
+            padding-left: 2px;
+        }
+
+        .boatName {
+            text-align: center;
+            font-family: optima, sans-serif;
+            font-size: 20px;
+            margin-left: 60px;
+            margin-top: 70px;
+            margin-bottom: 20px;
+            color: rgba(87, 87, 87, 0.94);
+        }
+
+        .tips {
+            float: left;
+            margin-bottom: 10px;
+        }
+
+        .prow {
+            text-align: center;
+            font-family: optima, sans-serif;
+            font-size: 15px;
+            margin-left: 170px;
+            margin-top: 20px;
+            color: rgba(87, 87, 87, 0.94);
+            border: 1px solid rgba(255, 255, 255, 0);
+            background-color: rgba(148, 249, 212, 0.72);
+            width: 160px;
+            border-radius: 15px;
+        }
+
+        .bdetails {
+            font-size: 30px;
+            background-color: rgb(112, 156, 255);
+            color: rgb(255, 255, 255);
+            margin: 30px auto 30px 0px;
+            padding: 10px 20px 10px 25px;
+        }
+
+        .pc {
+            position: absolute;
+            -moz-appearance: textfield;
+            -webkit-appearance: none;
+            font-size: 25px;
+            background-color: rgba(187, 223, 252, 0.42);
+            border: 0px;
+            width: 80px;
+            height: 30px;
+            float: right;
+            vertical-align: middle;
+            color: rgba(60, 60, 60, 0.94);
+            padding-left: 5px;
+        }
+
+        .selected-seat {
+            background-color: rgb(73, 161, 255);
+        }
+
+        .booked-seat {
+            background-color: rgba(246, 124, 112, 0.7);
+        }
+
+        .seat {
+            width: 25px;
+            height: 18px;
+            position: relative;
+            float: left;
+            margin-left: 20px;
+            border-radius: 5px;
+            margin-right: 5px;
+        }
+
+        button {
+            height: 40px;
+            width: 160px;
+            border-radius: 8px;
+            font-size: 25px;
+            font-family: sans-serif;
+            margin-left: 20%;
+            margin-top: 5%;
+            border: 0px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        #submit {
+            background-color: rgba(255, 255, 255, 0);
+            border: 0.1px solid #007bff;
+            color: #007bff;
+            margin-top: 40px;
+        }
+
+        .btn {
+            width: 150px;
+            height: 30px;
+            margin-top: 8px;
+            margin-left: 25px;
+            font-size: 18px;
+            border-radius: 0px;
+            background: white;
+            border: 0.1px solid #007bff;
+        }
+
+        button.selected {
+            background-color: #5eacff;
+            color: white;
+        }
+
+        #triangle1 {
+            width: 0px;
+            height: 0px;
+            border-width: 10px;
+            border-style: solid;
+            margin: -20px 0px 15px 130px;
+            border-color: rgb(73, 161, 255) transparent transparent transparent;
+        }
+
+        #triangle2 {
+            width: 0px;
+            height: 0px;
+            border-width: 10px;
+            border-style: solid;
+            margin: -35px 0px 15px 352px;
+            border-color: rgb(73, 161, 255) transparent transparent transparent;
+        }
+
+        hr {
+            border: 0.1px dashed rgb(217, 217, 217);
+            margin-top: 50px;
+            width: 80%;
+            margin-left: 50px;
+        }
+    </style>
+</head>
+
+<body onload="clearAll()" style="overflow:hidden;">
+    <div class="wrapper">
+        <div class="left">
+            <img src="../images/boat.jpg" style="width:225px;" alt="">
+            <img src="../images/book.png" style="height:75px;margin-bottom:-10px;" alt="">
+            <div class="txt">Choose the day </div>
+            <input type="date" name="" class="btn" id="dt">
+            <div class="txt">Choose the time</div>
+            <button class="btn" value="9:00AM" id="time1" onclick="selectTime(0);getDate(1)">9:00 AM</button>
+            <button class="btn" value="11:00AM" id="time2" onclick="selectTime(1);getDate(2)">11:00 AM</button>
+            <button class="btn" value="1:00PM" id="time3" onclick="selectTime(2);getDate(3)">1:00 PM</button>
+            <button class="btn" value="3:00PM" id="time4" onclick="selectTime(3);getDate(4)">3:00 PM </button>
+            <button class="btn" value="5:00PM" id="time5" onclick="selectTime(4);getDate(5)">5:00 PM</button>
+            <div class="notes"> * About price
+                <br> &nbsp Row A B &nbsp &nbsp &nbsp $30;
+                <br> &nbsp Row C D E &nbsp $25;
+                <br>&nbsp Other Row &nbsp $20;</div>
+        </div>
+        <div class="middle">
+            <button class="boatName" id="showR">Rose Boat</button>
+            <button class="boatName" id="showP">Princess Boat</button> 
+            <div id="triangle1"></div>
+            <div id="triangle2"></div>
+            <div>
+                <div class="tips" style="margin-left:80px;">
+                    <div class="seat booked-seat"></div> Booked</div>
+                <div class="tips">
+                    <div class="seat" style="background-color:rgba(159, 254, 170, 1);"></div> Available</div>
+                <div class="tips">
+                    <div class="seat selected-seat"></div> Selected</div>
+            </div>
+            <hr>
+            <div class="prow">PROW</div>
+            <div id="bookseatR"></div>
+            <div id="bookseatP"></div>
+        </div>
+        <div class="right">
+            <div class="bdetails">BOOKING DETAILS </div>
+            <div class="txt">
+                <div>Date: </div>
+                <input type="text" id="getDt" class="dts" readonly>
+            </div>
+            <div id="rsb">
+                <div class="txt">
+                    <div>Boat:</div>
+                    <input type="text" class="dts" value="Rose Boat" readonly>
+                </div>
+                <div class="txt">
+                    <div>Seat:</div>
+                    <textarea id="rose-selected-seats" rows="4" class="dts" readonly></textarea ></div></div>
+           <div id="psb">
+             <div class="txt">
+        <div>Boat:</div>
+        <input type="text" class="dts" value="Princess Boat" readonly>
+      </div>
+      <div class="txt">
+        <div>Seat:</div>
+        <textarea id="princess-selected-seats" rows="4" class="dts" readonly></textarea >
+      </div></div>
+      <div style="margin-top:50px;position:absolute;">
+        <span class="txt" style="font-size:23px;">Total Price:</span>
+        <input id="total-price" type="text" class="pc" placeholder="$0" readonly>
+        <div><button id="submit">Book</button></div>
+      </div>
+    </div>
+  </div>
+  <script>
+  var xmlDoc;
+  var preBookedSeat = {
+    roseBoat: [],
+    princessBoat: []
+  }
+  var orderedSeat = {
+  };
+
+  function getDataFromXml(){
+          var xmlhttp;
+           //get the xml document
+          if (window.XMLHttpRequest) {
+            // code for IE7+, Firefox, Chrome, Opera, Safari
+            xmlhttp = new XMLHttpRequest();
+          } else {
+            // code for IE6, IE5
+            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+          }
+          xmlhttp.open("GET", "seat.xml", false);
+          xmlhttp.send();
+          xmlDoc = xmlhttp.responseXML;
+  }
+
+  getDataFromXml();
+
+    //Creat table for rose boat
+    function seatR(rowR, seatNumberR, priceR, statusR) {
+      this.rowR = rowR;
+      this.seatNumberR = seatNumberR;
+      this.priceR = priceR;
+      this.statusR = statusR;
+    }
+
+    var seatsR = [];
+    var r = xmlDoc.getElementsByTagName("seatR");
+
+    for (i = 0; i < r.length; i++) {
+      var sRowR = r[i].getElementsByTagName("rowR")[0].childNodes[0].nodeValue;
+      var sNumberR = r[i].getElementsByTagName("seatNumberR")[0].childNodes[0].nodeValue;
+      var sPriceR = Number(r[i].getElementsByTagName("priceR")[0].childNodes[0].nodeValue);
+      var sStatusR = r[i].getElementsByTagName("statusR")[0].childNodes[0].nodeValue;
+      var sR = new seatR(sRowR, sNumberR, sPriceR, sStatusR);
+      seatsR[i] = sR;
+      if (sStatusR == 'booked') {
+        preBookedSeat.roseBoat.push({
+          seatNum: sNumberR,
+          seatPrice: sPriceR
+        })
+      }
+    }
+
+    RoseBoat();
+
+    function RoseBoat() {
+      var RoseBoat = document.createElement("table");
+      RoseBoat.setAttribute("id", "tableR");
+
+      var rows = 9;
+      var cols = 10;
+      var sNum = 0;
+
+      for (var i = 0; i < rows; i++) {
+        var row = RoseBoat.insertRow(i);
+        var cells = [];
+
+        for (var j = 0; j < cols; j++) {
+          cells.push(row.insertCell(j));
+          if (sNum < seatsR.length) {
+            cells[j].setAttribute('seat-number', seatsR[sNum].rowR + seatsR[sNum].seatNumberR);
+            cells[j].setAttribute('seat-status', seatsR[sNum].statusR);
+            cells[j].setAttribute('seat-price', seatsR[sNum].priceR);
+            cells[j].setAttribute('title', seatsR[sNum].rowR + seatsR[sNum].seatNumberR + ' $' + seatsR[sNum].priceR);
+            cells[j].innerHTML = " ";
+            cells[0].innerHTML = seatsR[i * cols].rowR;
+            sNum = sNum + 1;
+          }
+        }
+      }
+      document.getElementById("bookseatR").appendChild(RoseBoat);
+    }
+    //Creat table for princess boat
+    function seatP(rowP, seatNumberP, priceP, statusP) {
+      this.rowP = rowP;
+      this.seatNumberP = seatNumberP;
+      this.priceP = priceP;
+      this.statusP = statusP;
+    }
+
+    var seatsP = [];
+    var p = xmlDoc.getElementsByTagName("seatP");
+
+    for (i = 0; i < p.length; i++) {
+      var sRowP = p[i].getElementsByTagName("rowP")[0].childNodes[0].nodeValue;
+      var sNumberP = p[i].getElementsByTagName("seatNumberP")[0].childNodes[0].nodeValue;
+      var sPriceP = Number(p[i].getElementsByTagName("priceP")[0].childNodes[0].nodeValue);
+      var sStatusP = p[i].getElementsByTagName("statusP")[0].childNodes[0].nodeValue;
+      var sP = new seatP(sRowP, sNumberP, sPriceP, sStatusP);
+      seatsP[i] = sP;
+      if (sStatusR == 'booked') {
+        preBookedSeat.princessBoat.push({
+          seatNum: sNumberP,
+          seatPrice: sPriceP
+        })
+      }
+    }
+
+    PrincessBoat();
+
+    function PrincessBoat() {
+      var PrincessBoat = document.createElement("table");
+      PrincessBoat.setAttribute("id", "tableP");
+
+      var rows = 13;
+      var cols = 10;
+      var sNum = 0;
+
+      for (var i = 0; i < rows; i++) {
+        var row = PrincessBoat.insertRow(i);
+        var cells = [];
+
+        for (var j = 0; j < cols; j++) {
+
+          cells.push(row.insertCell(j));
+          if (sNum < seatsP.length) {
+
+            cells[j].setAttribute('seat-number', seatsP[sNum].rowP + seatsP[sNum].seatNumberP);
+            cells[j].setAttribute('seat-status', seatsP[sNum].statusP);
+            cells[j].setAttribute('seat-price', seatsP[sNum].priceP);
+            cells[j].setAttribute('title', seatsP[sNum].rowP + seatsP[sNum].seatNumberP + ' $' + seatsP[sNum].priceP);
+            cells[j].innerHTML = " ";
+            cells[0].innerHTML = seatsP[i * cols].rowP;
+            sNum = sNum + 1;
+          }
+        }
+      }
+      document.getElementById("bookseatP").appendChild(PrincessBoat);
+    }
+
+    $(document).ready(function() {
+
+        //set transparent cell as aisle
+        $("td[seat-status=no]").css({
+            "cursor": "default",
+            "pointer-events": "none",
+            "background": "transparent"
+        });
+        //change style of booked cell
+        $("td[seat-status=booked]").css({
+            "cursor": "not-allowed",
+            "background": "rgba(246, 124, 112, 0.7)"
+        });
+        //first row display row name
+        $("td[seat-status=rowname]").css({
+            "cursor": "default",
+            "pointer-events": "none",
+            "background": "transparent",
+            "color": "rgba(92, 105, 125, 0.95)",
+        });
+
+        //add or remove selected seats
+        $("#bookseatR td").click(function() {
+            doSelectSeat($(this), selectedRoseSeatList);
+            showSelectedSeat(selectedRoseSeatList, $('#rose-selected-seats'));
+            showTotalPrice();
+        });
+
+        $("#bookseatP td").click(function() {
+            doSelectSeat($(this), selectedPrincessSeatList);
+            showSelectedSeat(selectedPrincessSeatList, $('#princess-selected-seats'));
+            showTotalPrice();
+        });
+
+        initialPage();
+        //show rose boat
+        $("#showR").click(function() {
+            displayRose();
+        });
+        //show princess boat
+        $("#showP").click(function() {
+            displayPrincess();
+        });
+        //submit
+        $("#submit").click(function() {
+            submit();
+        });
+    });
+
+    //initial display page
+    function initialPage() {
+        $("#bookseatR,#rsb").show(500);
+        $("#bookseatP,#psb").hide(500);
+        $("#showR").css({
+            "background-color": "rgb(73, 161, 255)",
+            "color": "white",
+            "border": "none"
+        });
+        $("#showP").css({
+            "background-color": "white",
+            "color": "rgb(73, 161, 255)",
+            "border": "0.1px solid rgb(73, 161, 255)"
+        });
+        $("#triangle1").css({
+            "border-color": "rgb(73, 161, 255) transparent transparent transparent"
+        });
+        $("#triangle2").css({
+            "border-color": "transparent"
+        });
+    }
+    //show rose boat book table
+    function displayRose() {
+        $("#bookseatR,#rsb").show(500);
+        $("#bookseatP,#psb").hide(500);
+        $("#showR").css({
+            "background-color": "rgb(73, 161, 255)",
+            "color": "white",
+            "border": "none"
+        });
+        $("#showP").css({
+            "background-color": "white",
+            "color": "rgb(73, 161, 255)",
+            "border": "0.1px solid rgb(73, 161, 255)"
+        });
+        $("#triangle1").css({
+            "border-color": "rgb(73, 161, 255) transparent transparent transparent"
+        });
+        $("#triangle2").css({
+            "border-color": "transparent"
+        });
+    }
+    //show princess boat book table
+    function displayPrincess() {
+        $("#bookseatR,#rsb").hide(500);
+        $("#bookseatP,#psb").show(500);
+        $("#showP").css({
+            "background-color": "rgb(73, 161, 255)",
+            "color": "white",
+            "border": "none"
+        });
+        $("#showR").css({
+            "background-color": "white",
+            "color": "rgb(73, 161, 255)",
+            "border": "0.1px solid rgb(73, 161, 255)"
+        });
+        $("#triangle2").css({
+            "border-color": "rgb(73, 161, 255) transparent transparent transparent"
+        });
+        $("#triangle1").css({
+            "border-color": "transparent"
+        });
+    }
+
+    //submit and display booking details
+    function submit() {
+        var bookdate = document.getElementById("getDt").value;
+        var roseOrder = document.getElementById("rose-selected-seats").value;
+        var princessOrder = document.getElementById("princess-selected-seats").value;
+        var totalP = document.getElementById("total-price").value;
+
+
+        if (!bookdate) {
+            alert("Please choose a valid date for your boat booking!")
+        } else {
+            if ((selectedRoseSeatList.length < 1) && (selectedPrincessSeatList.length < 1)) {
+                alert("Please choose a valid seat for your boat booking!")
+            } else {
+                if (confirm("Your booking details are as follows:" + "\n" + "\n" + "Date:  " + bookdate + "\n" + "\n" + "Rose Boat :" + "\n" + roseOrder + "\n" +
+                        "\n" + "Princess Boat:" + "\n" + princessOrder + "\n" + "\n" + "Total Price:  " + totalP)) {
+                    alert("Your order has been generated , please pay in the next stage");
+
+                    if (!orderedSeat[bookdate]) {
+                      orderedSeat[bookdate] = {
+                        roseBoat: [],
+                        princessBoat: []
+                      }
+                    }
+                    orderedSeat[bookdate] = {
+                      roseBoat: orderedSeat[bookdate].roseBoat.concat(selectedRoseSeatList),
+                      princessBoat: orderedSeat[bookdate].princessBoat.concat(selectedPrincessSeatList)
+                    }
+                    clearAll();
+                } else {
+                    alert("Your order has been canceled");
+                }
+            }
+        }
+    }
+
+    //remove all once order has been generated,change the selected seat status
+    function clearAll() {
+        $("#dt").val('');
+        $("#getDt").val('');
+        $("#rose-selected-seats").val('');
+        $("#princess-selected-seats").val('');
+        $("#total-price").val('');
+        $("button.selected").removeClass('selected');
+        //$('button#time1').addClass('selected');
+        $("td.selected-seat").addClass('booked-seat');
+        $("td.selected-seat").removeClass('selected-seat');
+        selectedRoseSeatList = [];
+        selectedPrincessSeatList = [];
+        $("td.booked-seat").css({
+            "cursor": "not-allowed",
+        });
+        $("td.booked-seat").attr('seat-status', 'booked');
+    }
+    //get date from date input
+    function getDate(i) {
+        var date = document.getElementById("dt");
+        if (!date.value) {
+          alert('Please select date first!');
+          return;
+        }
+        var time = document.getElementById('time' + i);
+        var loc = document.getElementById("getDt");
+        loc.value = date.value + '  ' + time.value;
+
+
+    }
+
+    var selectedRoseSeatList = [];
+    var selectedPrincessSeatList = [];
+    //get selected seat from table
+    function doSelectSeat(seatEle, list) {
+        if (seatEle.attr('seat-status') == 'booked') {
+            return;
+        }
+        //Change the seat status when click
+        var selectedClass = 'selected-seat';
+        var isRemove = false;
+
+        if (seatEle.hasClass(selectedClass)) {
+            isRemove = true;
+        }
+        seatEle.toggleClass(selectedClass);
+
+        var seat = {
+            seatNum: seatEle.attr('seat-number'),
+            seatPrice: seatEle.attr('seat-price')
+        }
+
+        var index = getIndexOfSeat(seat, list);
+        if (isRemove) {
+            if (index >= 0) {
+                list.splice(index, 1);
+            }
+        } else {
+            if (index < 0) {
+                list.push(seat)
+            }
+        }
+    }
+
+    function getIndexOfSeat(seat, list) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].seatNum == seat.seatNum) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    function showSelectedSeat(list, seatInputEle, totalPriceEle) {
+        var seatListText = '';
+        list.forEach(function(seat) {
+            seatListText += seat.seatNum + '  ' + '$' + parsePrice(seat.seatPrice) + '\n';
+        })
+
+        seatInputEle.val(seatListText);
+
+        seatInputEle.scrollTop(seatInputEle[0].scrollHeight);
+    }
+
+    function getTotalPrice(list) {
+        var totalPrice = 0;
+        list.forEach(function(seat) {
+            totalPrice += parsePrice(seat.seatPrice);
+        })
+        return totalPrice;
+    }
+
+    function showTotalPrice() {
+        var totalPrice = getTotalPrice(selectedPrincessSeatList) + getTotalPrice(selectedRoseSeatList);
+        $('#total-price').val('$' + totalPrice);
+    }
+
+    function parsePrice(input) {
+        var price = Number(input);
+        return isNaN(price) ? 0 : price;
+    }
+
+    function selectBtn(selectors, index) {
+        selectors.forEach(function(selector) {
+            $(selector).removeClass('selected');
+        });
+        $(selectors[index]).toggleClass('selected');
+    }
+
+    var timeSelectors = ['#time1', '#time2', '#time3', '#time4', '#time5'];
+
+    function selectTime(index) {
+        selectBtn(timeSelectors, index);
+    }
+  </script>
+</body>
+
+</html>
