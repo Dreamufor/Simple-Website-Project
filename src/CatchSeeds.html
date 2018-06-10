@@ -14,7 +14,7 @@
         }
 
         #canvas {
-            background-image: url(../images/bggame.png);
+            background-image: url(../images/bggame.jpg);
         }
 
         .ScoreBoard {
@@ -23,7 +23,7 @@
             display: block;
             position: absolute;
             background: transparent;
-            margin-left: 580px;
+            margin-left: 560px;
         }
 
         .info {
@@ -34,10 +34,10 @@
 
         .score {
             float: left;
-            margin-left: -580px;
+            margin-left: -540px;
             margin-top: 0px;
             font-size: 30px;
-            color: rgb(255, 255, 255);
+            color: #EE6AA7;
         }
 
         #Score {
@@ -61,18 +61,22 @@
 <body style="overflow:hidden;">
     <div class="ScoreBoard">
         <div class="score">Score<br><span id="Score">0</span></div>
-        <button class="button" id="StartG" value="Start">
+        <button class="button" id="Start" value="Start">
       <img src="../images/start.png" alt="" style="height:25px;border-radius:10px;">
     </button>
-        <button class="button" id="StopG" value="Pause">
+        <button class="button" id="Stop" value="Pause">
       <img src="../images/stop.png" alt="" style="height:25px;border-radius:10px;">
     </button>
-        <button class="button" id="ResetG" value="Restart">
+        <button class="button" id="Reset" value="Restart">
       <img src="../images/restart.png" alt="" style="height:25px;border-radius:10px;">
     </button> <br/>
         <div>
             <div class="info" style="margin-left: 28px;">Volume: <input type="range" min="0" max="100" id="Volume" value="50" style="height: 10px;"></div>
             <div class="info">Time left: <span id="Time">7:00</span></div>
+        </div>
+        <div id="timeSelect" style="position: relative; left: 40px; top: 10px; display: block;">
+            Full 7mins<input id="time1" name="timeSelect" type="radio" checked="checked" onclick="time1();"/><span>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</span>
+            Demo 1min<input name="timeSelect" type="radio" onclick="time2();" />
         </div>
         <audio class="music" loop id="MusicBgm">
             <source src="../images/gameStart.mp3">
@@ -88,37 +92,49 @@
         </audio>
     </div>
     <canvas id="canvas" width="1005" height="655"></canvas>
+    <div id="celebration1" style="position: absolute; left: 340px; top: 100px; transform: scale(0.6, 0.57); display: none;" >
+        <img src="../images/fire1.gif"/>
+    </div>
+    <div id="celebration2" style="position: absolute; left: 440px; top: 50px; transform: scale(0.2, 0.2); display: none;" >
+        <img src="../images/fire2.gif"/>
+    </div>
+
+    <div id="celebration4" style="position: absolute; left: 340px; top: 100px; transform: scale(0.6, 0.57); display: none;" >
+        <img src="../images/Bob.gif"/>
+    </div>
     <script>
         var interval;
-        var frame = 20,
-            TotalTime = 420,
-            LeftTime = TotalTime;
+        var frame = 20, TotalTime = 420, LeftTime = TotalTime;
         var StartTime = Date.now();
         var timeDiv = document.getElementById("Time");
         var Audios = [document.getElementById("MusicBgm"), document.getElementById("MusicCatch"), document.getElementById("MusicHit"), document.getElementById("MusicOver")];
-        var LEFT = 37,
-            UP = 38,
-            RIGHT = 39,
-            DOWN = 40,
-            C = 67; // KeyCode
+        for (var i = 0; i < Audios.length; i++){
+            Audios[i].volume = 0.5;
+        }
+        var LEFT = 37, UP = 38, RIGHT = 39, DOWN = 40, C = 67; // KeyCode
         var keyDown = {};
         var speed = 200;
+        var speedRate = 20;
         var SeedSize = 24; // max radius
-        var GrowTime = 4000 + 4000 + 3000; // grow time and change color time and stay time
-        var boxs = [
+        var GrowTime = 4000 + 4000 + 3000; // grow time, change color time and stay time
+        var seeds = [
             [200 + 100 * Math.random(), 440 + 50 * Math.random(), GrowTime]
-        ]; // init with one
+        ]; // first seed, hardcoded
         var score = 0;
         var scoreDiv = document.getElementById("Score");
         var ManW = 350,
             ManH = 183,
-            HeadW = 180;
+            HeadW = 180; // man catching, web turn off
         var ManRW = 215,
             ManRH = 280,
             HeadRW = 140;
         var manStat = "R";
-        document.getElementById("StartG").onclick = startGame;
-        document.getElementById("StopG").onclick = stopGame;
+        var eyeStat = 1;
+        var eyeStatCnt;
+        document.getElementById("Start").onclick = startGame;
+        document.getElementById("Stop").onclick = stopGame;
+        document.getElementById("Reset").onclick = resetGame;
+        document.getElementById("Volume").onchange = volControl;
         var cn = document.getElementById('canvas');
         var ctx = cn.getContext("2d");
 
@@ -135,90 +151,34 @@
         var imgMrXR_V = new Image();
         imgMrXR.src = "../images/MrXR.png";
         imgMrXR_V.src = "../images/MrXR_V.png";
-        var Direction = {
+        var manPics = {
             Left: imgMrX_V,
             Right: imgMrX,
             LeftR: imgMrXR_V,
             RightR: imgMrXR
-        }; // man status
-        var direction = Direction.LeftR; // default direction
-
-        function startGame() {
-            interval = setInterval(run, frame);
-            playMusic(0);
-        }
-
-
-        function stopGame() {
-            stopMusic(0);
-            clearInterval(interval);
-        }
-
-
-        function gameOver() {
-            stopGame();
-            ctx.clearRect(0, 0, 1005, 655);
-            playMusic(3);
-            LeftTime = TotalTime;
-
-            face = 0;
-            direction = Direction.LeftR;
-            boxs = [
-                [200 + 100 * Math.random(), 440 + 50 * Math.random(), GrowTime]
-            ];
-            alert("Game over! Your score is: " + score);
-            score = 0;
-            timeDiv.innerHTML = "7:00";
-            scoreDiv.innerHTML = 0;
-        }
-        document.getElementById("ResetG").onclick = function() {
-            stopGame();
-            ctx.clearRect(0, 0, 1005, 655);
-            playMusic(3);
-            LeftTime = TotalTime;
-
-            face = 0;
-            direction = Direction.LeftR;
-            boxs = [
-                [200 + 100 * Math.random(), 440 + 50 * Math.random(), GrowTime]
-            ];
-            score = 0;
-            timeDiv.innerHTML = "7:00";
-            scoreDiv.innerHTML = 0;
-            startGame();
-            scoreDiv.innerHTML = 0;
         };
+        var manPic = manPics.LeftR; // default manPic
+        var imgStar = new Image();
+        var imgHeart = new Image();
+        imgStar.src = "../images/dizzy.gif";
+        imgHeart.src = "../images/heart.png";
 
-
-        function run() {
-            moveBlock((Date.now() - StartTime) / 1000);
-            StartTime = Date.now();
-            updateTime();
+        function time1(){
+            timeDiv.innerHTML = "7:00";
+            TotalTime = 420;
+            LeftTime = TotalTime;
         }
 
-        // update time left
-
-        function updateTime() {
-            LeftTime -= frame / 1000;
-            if (LeftTime <= 0) {
-                gameOver();
-                return;
-            }
-
-            var m = parseInt(LeftTime / 60);
-            var s = parseInt(LeftTime % 60);
-            s = s >= 10 ? s : "0" + s;
-            timeDiv.innerHTML = m + ":" + s;
+        function time2(){
+            timeDiv.innerHTML = "1:00";
+            TotalTime = 60;
+            LeftTime = TotalTime;
         }
 
-
-        // init valume
-        for (var i = 0; i < Audios.length; i++)
-            Audios[i].volume = 0.5;
-
-        document.getElementById("Volume").onchange = function() {
-            for (var i = 0; i < Audios.length; i++)
+        function volControl() {
+            for (var i = 0; i < Audios.length; i++){
                 Audios[i].volume = this.value / 100;
+            }
         };
 
         // music control
@@ -231,20 +191,161 @@
             Audios[ind].pause();
         }
 
+        // keyboard event
+        window.addEventListener('keydown', function(e) {
+            keyDown[e.keyCode] = true;
+        });
+        window.addEventListener('keyup', function(r) {
+            delete keyDown[r.keyCode];
+        });
 
+        function startGame() {
+            document.getElementById("timeSelect").style.display = "none";
+            document.getElementById("celebration1").style.display = "none";
+            document.getElementById("celebration2").style.display = "none";
+
+            document.getElementById("celebration4").style.display = "none";
+            interval = setInterval(run, frame);
+            playMusic(0);
+        }
+
+        function stopGame() {
+            stopMusic(0);
+            clearInterval(interval);
+        }
+
+        function gameOver() {
+            stopGame();
+            ctx.clearRect(0, 0, 1005, 655);
+            playMusic(3);
+            LeftTime = TotalTime;
+
+            face = 0;
+            manPic = manPics.LeftR;
+            seeds = [
+
+            ];
+            alert("Game over! Your score is: " + score);
+            timeDiv.innerHTML = "7:00";
+            TotalTime = 420;
+            LeftTime = TotalTime;
+            scoreDiv.innerHTML = 0;
+            document.getElementById("time1").checked = "checked";
+            document.getElementById("timeSelect").style.display = "block";
+            document.getElementById("celebration1").style.display = "block";
+            document.getElementById("celebration2").style.display = "block";
+            document.getElementById("celebration4").style.display = "block";                
+            score = 0;
+        }
+
+        function resetGame() {
+            stopGame();
+            ctx.clearRect(0, 0, 1005, 655);
+            LeftTime = TotalTime;
+            face = 0;
+            manPic = manPics.LeftR;
+            seeds = [
+                [200 + 100 * Math.random(), 440 + 50 * Math.random(), GrowTime]
+            ];
+            score = 0;
+            timeDiv.innerHTML = "7:00";
+            scoreDiv.innerHTML = 0;
+            startGame();
+            scoreDiv.innerHTML = 0;
+        };
+
+        function run() {
+
+            moveMan(speedRate / 1000);
+            updateTime();
+            eyeStatCnt --;
+            if (eyeStatCnt < -20){
+                eyeStat = 1;
+            }
+        }
+
+        // update left time
+        function updateTime() {
+            LeftTime -= frame / 1000;
+            if (LeftTime <= 0) {
+                gameOver();
+                return;
+            }
+            var m = parseInt(LeftTime / 60);
+            var s = parseInt(LeftTime % 60);
+            s = s >= 10 ? s : "0" + s;
+            timeDiv.innerHTML = m + ":" + s;
+        }
+
+        // man move
+        function moveMan(mod) {
+            if (DOWN in keyDown) {
+                manPic = manPics.RightR;
+                manStat = "R";
+                if (ManY < 130){
+                    ManY += speed * mod;
+                }
+            }
+            if (UP in keyDown) {
+                manPic = manPics.LeftR;
+                manStat = "R";
+                if (ManY > 30){
+                    ManY -= speed * mod;
+                }
+            }
+            if (RIGHT in keyDown) {
+                manPic = manPics.RightR;
+                manStat = "R";
+                if (ManX < 700){
+                    ManX += speed * mod;
+                }
+            }
+            if (LEFT in keyDown) {
+                manPic = manPics.LeftR;
+                manStat = "R";
+                if (ManX > 60){
+                    ManX -= speed * mod;
+                }
+            }
+            if (C in keyDown) {
+            	speedRate = 5;
+                if (manPic == manPics.RightR) {
+                    manStat = "C1";
+                    manPic = manPics.Right;
+                }
+                if (manPic == manPics.LeftR) {
+                    manStat = "C2";
+                    manPic = manPics.Left;
+                }
+            } else {
+            	speedRate = 20;
+                if (manPic == manPics.Right) {
+                    manStat = "R";
+                    manPic = manPics.RightR;
+                }
+                if (manPic == manPics.Left) {
+                    manStat = "R";
+                    manPic = manPics.LeftR;
+                }
+            }
+            drawMan(manStat);
+            moveEyes(ManX, ManY);
+            updateSeeds();
+            check(ManX, ManY);
+        }
 
         function drawMan(manStatus) {
             if (manStatus == "R") {
                 ctx.clearRect(0, 0, 1005, 655);
-                ctx.drawImage(direction, ManX - 1, ManY - 1, ManRW, ManRH);
+                ctx.drawImage(manPic, ManX - 1, ManY - 1, ManRW, ManRH);
             }
             if (manStatus == "C1") {
                 ctx.clearRect(0, 0,1005, 655);
-                ctx.drawImage(direction, ManX + 40, ManY + 100, ManW, ManH);
+                ctx.drawImage(manPic, ManX + 40, ManY + 100, ManW, ManH);
             }
             if (manStatus == "C2") {
                 ctx.clearRect(0, 0, 1005, 655);
-                ctx.drawImage(direction, ManX - 180, ManY + 100, ManW, ManH);
+                ctx.drawImage(manPic, ManX - 180, ManY + 100, ManW, ManH);
             }
             var gradient = ctx.createLinearGradient(0, 0, 800, 0);
             gradient.addColorStop("0", "rgb(254, 113, 193)");
@@ -253,7 +354,6 @@
             ctx.font = "18px Verdana";
             ctx.fillStyle = gradient;
             ctx.fillText("Use ↑←↓→ to move, press \"C\" to turn off basket", 530, 100);
-
         }
 
         var xp = 15;
@@ -263,115 +363,73 @@
 
         function moveEyes(xb, yb) {
             xp += xp_add;
-            if (xp > 15 || xp < 0) xp_add = -xp_add;
+            if (xp > 15 || xp < 0) {
+                xp_add = -xp_add;
+            }
             doEyes(xb, yb, xp, yp);
         }
 
         function doEyes(xb, yb, xp, yp) {
+            if (eyeStat == 1){
+                if (manPic == manPics.Left || manPic == manPics.LeftR) {
+                    // draw 2 blue circles
+                    ctx.beginPath();
+                    ctx.fillStyle = 'black';
+                    ctx.arc(xb + 55 + xp, yb + yp + 170, 5, 30, Math.PI * 2, true);
+                    ctx.fill();
+                    ctx.closePath();
+                    ctx.lineWidth = "2";
+                    ctx.strokeStyle = "blue";
+                    ctx.stroke();
 
+                    ctx.beginPath();
+                    ctx.arc(xb + xp + 80, yb + yp + 170, 5, 30, Math.PI * 2, true);
+                    ctx.fill();
+                    ctx.closePath();
+                    ctx.lineWidth = "2";
+                    ctx.strokeStyle = "blue";
+                    ctx.stroke();
+                }
+                if (manPic == manPics.Right || manPic == manPics.RightR) {
+                    // draw 2 blue circles
+                    ctx.beginPath();
+                    ctx.fillStyle = 'black';
+                    ctx.arc(xb + 118 + xp, yb + yp + 170, 5, 30, Math.PI * 2, true);
+                    ctx.fill();
+                    ctx.closePath();
+                    ctx.lineWidth = "2";
+                    ctx.strokeStyle = "blue";
+                    ctx.stroke();
 
-            if (direction == Direction.Left || direction == Direction.LeftR) {
-                // draw 2 blue circles
-                ctx.beginPath();
-                ctx.fillStyle = 'black';
-                ctx.arc(xb + 55 + xp, yb + yp + 170, 5, 30, Math.PI * 2, true);
-                ctx.fill();
-                ctx.closePath();
-                ctx.lineWidth = "2";
-                ctx.strokeStyle = "blue";
-                ctx.stroke();
-
-                ctx.beginPath();
-                ctx.arc(xb + xp + 80, yb + yp + 170, 5, 30, Math.PI * 2, true);
-                ctx.fill();
-                ctx.closePath();
-                ctx.lineWidth = "2";
-                ctx.strokeStyle = "blue";
-                ctx.stroke();
-            }
-            if (direction == Direction.Right || direction == Direction.RightR) {
-                // draw 2 blue circles
-                ctx.beginPath();
-                ctx.fillStyle = 'black';
-                ctx.arc(xb + 118 + xp, yb + yp + 170, 5, 30, Math.PI * 2, true);
-                ctx.fill();
-                ctx.closePath();
-                ctx.lineWidth = "2";
-                ctx.strokeStyle = "blue";
-                ctx.stroke();
-
-                ctx.beginPath();
-                ctx.arc(xb + xp + 143, yb + yp + 170, 5, 30, Math.PI * 2, true);
-                ctx.fill();
-                ctx.closePath();
-                ctx.lineWidth = "2";
-                ctx.strokeStyle = "blue";
-                ctx.stroke();
+                    ctx.beginPath();
+                    ctx.arc(xb + xp + 143, yb + yp + 170, 5, 30, Math.PI * 2, true);
+                    ctx.fill();
+                    ctx.closePath();
+                    ctx.lineWidth = "2";
+                    ctx.strokeStyle = "blue";
+                    ctx.stroke();
+                }
+            } else if (eyeStat == 2){
+                if (manPic == manPics.Left || manPic == manPics.LeftR) {
+                    ctx.drawImage(imgStar, xb + 45 + xp, yb + yp + 160);
+                    ctx.drawImage(imgStar, xb + xp + 70, yb + yp + 160);
+                }
+                if (manPic == manPics.Right || manPic == manPics.RightR) {
+                    ctx.drawImage(imgStar, xb + 113 + xp, yb + yp + 160);
+                    ctx.drawImage(imgStar, xb + xp + 138, yb + yp + 160);
+                }
+            } else if (eyeStat == 3){
+                if (manPic == manPics.Left || manPic == manPics.LeftR) {
+                    ctx.drawImage(imgHeart, xb + 45 + xp, yb + yp + 160);
+                    ctx.drawImage(imgHeart, xb + xp + 70, yb + yp + 160);
+                }
+                if (manPic == manPics.Right || manPic == manPics.RightR) {
+                    ctx.drawImage(imgHeart, xb + 113 + xp, yb + yp + 160);
+                    ctx.drawImage(imgHeart, xb + xp + 138, yb + yp + 160);
+                }
             }
         }
 
-
-        // keyboard event
-
-        window.addEventListener('keydown', function(e) {
-            keyDown[e.keyCode] = true;
-        });
-        window.addEventListener('keyup', function(r) {
-            delete keyDown[r.keyCode];
-        });
-
-        // man move
-
-        function moveBlock(mod) {
-            if (DOWN in keyDown) {
-                direction = Direction.RightR;
-                manStat = "R";
-                if (ManY < 130)
-                    ManY += speed * mod;
-            }
-            if (UP in keyDown) {
-                direction = Direction.LeftR;
-                manStat = "R";
-                if (ManY > 30)
-                    ManY -= speed * mod;
-            }
-            if (RIGHT in keyDown) {
-                direction = Direction.RightR;
-                manStat = "R";
-                if (ManX < 700)
-                    ManX += speed * mod;
-            }
-
-            if (LEFT in keyDown) {
-                direction = Direction.LeftR;
-                manStat = "R";
-                if (ManX > 60)
-                    ManX -= speed * mod;
-            }
-            if (C in keyDown) {
-                if (direction == Direction.RightR) {
-                    manStat = "C1";
-                    direction = Direction.Right;
-                }
-                if (direction == Direction.LeftR) {
-                    manStat = "C2";
-                    direction = Direction.Left;
-                }
-            } else {
-                if (direction == Direction.Right) {
-                    manStat = "R";
-                    direction = Direction.RightR;
-                }
-                if (direction == Direction.Left) {
-                    manStat = "R";
-                    direction = Direction.LeftR;
-                }
-            }
-            drawMan(manStat);
-            moveEyes(ManX, ManY);
-            updateSeeds();
-            check(ManX, ManY);
-        }
 
         function updateSeeds() {
             // appeared randomly
@@ -379,36 +437,34 @@
                 var nx = Math.floor(Math.random() * 900);
                 var ny = Math.floor(Math.random() * 230);
 
-                if (nx > 100 && ny > 120 && nx % 2 == 0)
-                    boxs.push([nx, ny + 400, GrowTime]);
+                if (nx > 100 && ny > 120 && nx % 2 == 0){
+                    seeds.push([nx, ny + 400, GrowTime]);
+                }
             }
 
             // grow or float
-            for (var i = boxs.length - 1; i >= 0; i--) {
-                if (boxs[i][2] <= frame)
-                    boxs[i][1] -= 1.25; // float, last for 7 seconds
-                if (boxs[i][1] < 20)
-                    boxs.splice(i, 1); // disappear
-                else {
-                    var ratio = (GrowTime - boxs[i][2]) / GrowTime;
-                    // get current size
-                    var r = 6 + 50 * ratio; // 6 is min radius
-                    if (r > SeedSize)
+            for (var i = seeds.length - 1; i >= 0; i--) {
+                if (seeds[i][2] <= frame){
+                    seeds[i][1] -= 1.25; // float, last for 7 seconds
+                }
+                if (seeds[i][1] < 20){
+                    seeds.splice(i, 1); // disappear
+                } else {
+                    var ratio = (GrowTime - seeds[i][2]) / GrowTime;
+                    var r = 6 + 50 * ratio; // 6 is min radius, r is current size.
+                    if (r > SeedSize){
                         r = SeedSize;
-
-                    //          var color = ratio * 75;
-                    //          if (color > 60)
-                    //            color = 60;
-
+                    }
                     ctx.beginPath();
-                    ctx.arc(boxs[i][0], boxs[i][1], r, 0, 2 * Math.PI);
-                    ctx.fillStyle = getGradientByRatio(boxs[i][0], boxs[i][1], r, ratio);
+                    ctx.arc(seeds[i][0], seeds[i][1], r, 0, 2 * Math.PI);
+                    ctx.fillStyle = getGradientByRatio(seeds[i][0], seeds[i][1], r, ratio);
                     ctx.fill();
                     ctx.closePath();
 
                     // grow time decrease
-                    if (boxs[i][2] >= frame)
-                        boxs[i][2] -= frame;
+                    if (seeds[i][2] >= frame){
+                        seeds[i][2] -= frame;
+                    }
                 }
             }
         }
@@ -447,33 +503,31 @@
             return "rgb(" + r + "," + g + "," + b + ")";
         }
 
-
-
         function check(ManX, ManY) {
-            for (var i = boxs.length - 1; i >= 0; i--) {
-                var x = boxs[i][0];
-                var y = boxs[i][1];
+            for (var i = seeds.length - 1; i >= 0; i--) {
+                var x = seeds[i][0];
+                var y = seeds[i][1];
                 if (manStat == "R") {
-                    if (boxs[i][2] < frame) {
-                        if (collisionR(ManX, ManY, ManRW, HeadRW, x, y, SeedSize)) {
+                    if (seeds[i][2] < frame) {
+                        if (seedCatchR(ManX, ManY, ManRW, HeadRW, x, y, SeedSize)) {
                             scoreDiv.innerHTML = ++score;
-                            boxs.splice(i, 1);
+                            seeds.splice(i, 1);
                             playMusic(1);
                         } else if (hitR(ManX, ManY, ManRW, HeadRW, x, y, SeedSize)) {
                             scoreDiv.innerHTML = --score;
-                            boxs.splice(i, 1);
+                            seeds.splice(i, 1);
                             playMusic(2);
                         }
                     }
                 } else {
-                    if (boxs[i][2] < frame) {
-                        if (collision(ManX, ManY, ManW, ManH, HeadW, x, y, SeedSize)) {
+                    if (seeds[i][2] < frame) {
+                        if (seedCatch(ManX, ManY, ManW, ManH, HeadW, x, y, SeedSize)) {
                             scoreDiv.innerHTML = ++score;
-                            boxs.splice(i, 1);
+                            seeds.splice(i, 1);
                             playMusic(1);
                         } else if (hit(ManX, ManY, ManW, ManH, HeadW, x, y, SeedSize)) {
                             scoreDiv.innerHTML = --score;
-                            boxs.splice(i, 1);
+                            seeds.splice(i, 1);
                             playMusic(2);
                         }
                     }
@@ -481,51 +535,59 @@
             }
         }
 
-        // catch
-        function collision(x1, y1, w, h, headW, x2, y2, r) {
-            if (direction == Direction.Left) {
-                if (x1 - 180 > x2 + r || x1 + (w - headW) - 180 < x2 - r)
+        // catch when busket is turned off
+        function seedCatch(x1, y1, w, h, headW, x2, y2, r) {
+            if (manPic == manPics.Left) {
+                if (x1 - 180 > x2 + r || x1 + (w - headW) - 180 < x2 - r){
                     return false;
+                }
             }
-            if (direction == Direction.Right) {
-                if (x1 + 40 + w < x2 - r || x1 + 40 + (w - headW) > x2 + r)
+            if (manPic == manPics.Right) {
+                if (x1 + 40 + w < x2 - r || x1 + 40 + (w - headW) > x2 + r){
                     return false;
+                }
             }
             if (y1 + 100 > y2 + r || y1 + h + 100 < y2 - r) {
                 return false;
             }
-
+            eyeStatCnt = 5;
+            eyeStat = 3;
             return true;
         }
 
-        function collisionR(x1, y1, w, h, x2, y2, r) {
+        // catch seed when busket is on the top
+        function seedCatchR(x1, y1, w, h, x2, y2, r) {
             if (x1 + w < x2 - r || x1 > x2 + r) {
                 return false;
             }
             if (y1 > y2 + r || y1 + h < y2 - r) {
                 return false;
             }
+            eyeStatCnt = 5;
+            eyeStat = 3;
             return true;
         }
 
-        // hit
+        // hit when busket is turned off
         function hit(x1, y1, w, h, headW, x2, y2, r) {
 
-            if (direction == Direction.Left) {
+            if (manPic == manPics.Left) {
                 if (x1 - 180 + w < x2 - r || x1 - 180 + (w - headW) > x2 + r)
                     return false;
             }
-            if (direction == Direction.Right) {
+            if (manPic == manPics.Right) {
                 if (x1 + 40 > x2 + r || x1 + (w - headW) + 40 < x2 - r)
                     return false;
             }
             if (y1 + 100 > y2 + r || y1 + h + 100 < y2 - r) {
                 return false;
             }
-
+            eyeStatCnt = 5;
+            eyeStat = 2;
             return true;
         }
-        // hitR
+
+        // hit when busket is on top
         function hitR(x1, y1, w, h, x2, y2, r) {
             if (x1 + w < x2 - r || x1 > x2 + r) {
                 return false;
@@ -533,6 +595,8 @@
             if (y1 + 140 > y2 + r || y1 + 140 + h < y2 - r) {
                 return false;
             }
+            eyeStat = 2;
+            eyeStatCnt = 5;
             return true;
         }
     </script>

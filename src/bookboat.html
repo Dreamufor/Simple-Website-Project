@@ -234,15 +234,18 @@
             width: 80%;
             margin-left: 50px;
         }
+
         td[seat-status='no'] {
             cursor: default;
             pointer-events: none;
             background: transparent;
         }
+
         td[seat-status='booked'] {
             cursor: not-allowed;
             background: rgba(246, 124, 112, 0.7);
         }
+
         td[seat-status='rowname'] {
             cursor: default;
             pointer-events: none;
@@ -587,13 +590,19 @@
 
     //remove all once order has been generated,change the selected seat status
     function clearAll() {
-        $("#dt").val('');
-        $("#getDt").val('');
+        var d=new Date()
+        var day=d.getDate() + 1
+        var month=d.getMonth() + 1
+        var year=d.getFullYear()
+        var nextDay = year +"-" + (month < 10 ? '0' + month : month) + "-" + (day < 10 ? '0' + day : day);
+        $("#dt").val(nextDay);
+        $("#getDt").val(nextDay +'  '+ $("button#time1").val());
+        console.log(nextDay +"  "+ $("button#time1").val());
         $("#rose-selected-seats").val('');
         $("#princess-selected-seats").val('');
         $("#total-price").val('');
         $("button.selected").removeClass('selected');
-        //$('button#time1').addClass('selected');
+        $('button#time1').addClass('selected');
         $("td.selected-seat").removeClass('selected-seat');
         selectedRoseSeatList = [];
         selectedPrincessSeatList = [];
@@ -601,6 +610,7 @@
             "cursor": "not-allowed",
         });
         $("td.booked-seat").attr('seat-status', 'booked');
+        restoreBookedSeat(document.getElementById("getDt").value)
     }
     //get date from date input
     function getDate(i) {
@@ -621,15 +631,19 @@
           $("#tableP td[seat-number= " + seat.seatNum + "]").attr('seat-status', 'booked')
         })
 
-        var bookedSeat = orderedSeat[loc.value]
-        if (bookedSeat) {
-          bookedSeat.roseBoat.forEach(function (seat) {
-            $("#tableR td[seat-number= " + seat.seatNum + "]").attr('seat-status', 'booked')
-          })
-          bookedSeat.princessBoat.forEach(function (seat) {
-            $("#tableP td[seat-number= " + seat.seatNum + "]").attr('seat-status', 'booked')
-          })
-        }
+        restoreBookedSeat(loc.value);
+    }
+
+    function restoreBookedSeat(selectedTime) {
+      var bookedSeat = orderedSeat[selectedTime];
+      if (bookedSeat) {
+        bookedSeat.roseBoat.forEach(function (seat) {
+          $("#tableR td[seat-number= " + seat.seatNum + "]").attr('seat-status', 'booked')
+        })
+        bookedSeat.princessBoat.forEach(function (seat) {
+          $("#tableP td[seat-number= " + seat.seatNum + "]").attr('seat-status', 'booked')
+        })
+      }
     }
 
     var selectedRoseSeatList = [];
