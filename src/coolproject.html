@@ -278,7 +278,6 @@
       <div class="map" id="map4">
         <img src="../images/4.png" alt="" style="width:auto;height:280px">
       </div>
-
     </div>
   </div>
 </body>
@@ -304,32 +303,33 @@
 
     this.ele = null;
   }
-
+ //prototype 向对象添加属性
   StateObj.prototype = {
-    moveToIndex: function(index) {
+    moveToIndex: function(index) {      //传一个位置到图片上
       var mapObj = map_list[this.map];
-      index = index % mapObj.length;
+      index = index % mapObj.length;    // index 若>3的话, 回到第一个点
       var point = mapObj[index];
 
       this.moveToPos(point[0], point[1]);
     },
 
+//put the object to the map
     moveToPos(left, top) {
-      if (!this.ele) {
-        return;
-      }
+          if (!this.ele) {
+            return;
+          }
 
-      var parentSize = this.getParentSize();
-      if (!parentSize) {
-        return;
-      }
+          var parentSize = this.getParentSize();
+          if (!parentSize) {
+            return;
+          }
 
-      this.ele.css({
-        left: parentSize.w * left,
-        top: parentSize.h * top
-      })
+          this.ele.css({
+            left: parentSize.w * left,
+            top: parentSize.h * top
+          })
     },
-
+//get the size of the object
     getParentSize: function() {
       if (!this.ele) return null;
       var parent = this.ele.parent();
@@ -346,10 +346,10 @@
     update: function(elapseTime) {
       var rate = elapseTime / anim_line_duration;
 
-      var curIndex = parseInt(rate);
+      var curIndex = parseInt(rate);//走过了几段线
       var nextIndex;
 
-      rate = rate - curIndex;
+      rate = rate - curIndex; //0-1
 
       var mapObj = map_list[this.map];
 
@@ -366,13 +366,13 @@
       var p1 = mapObj[this.clamp(curIndex, mapObj.length)];
       var p2 = mapObj[this.clamp(nextIndex, mapObj.length)];
 
-      var x = p1[0] + (p2[0] - p1[0]) * rate;
-      var y = p1[1] + (p2[1] - p1[1]) * rate;
+      var x = p1[0] + (p2[0] - p1[0]) * rate; //线性插值
+      var y = p1[1] + (p2[1] - p1[1]) * rate;//得到点的位置
 
       this.moveToPos(x, y);
     },
-    clamp: function(index, length) {
-      var sy = index % length;
+    clamp: function(index, length) { //处理负数
+      var sy = index % length;   //处理循环
       if (sy < 0) {
         return length + sy;
       } else {
