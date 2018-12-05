@@ -39,7 +39,7 @@ nav li {
 
 nav a {
   color: #fff;
-  background: #79dae7;
+  background: #585a5b;
   position: relative;
   display: inline-block;
   margin: 0 22px;
@@ -55,21 +55,21 @@ nav a:before, nav a:after {
   top: 0;
   width: 23px;
   height: 100%;
-  background-color: #79dae7;
+  background-color: #585a5b;
 }
 
 nav a:before {
   border-radius: 16px 0 0 0;
   transform: skew(-16deg);
   left: -16px;
-  border-left: 1px solid #03a8be;
+  border-left: 1px solid #585a5b;
 }
 
 nav a:after {
   border-radius: 0 16px 0 0;
   transform: skew(16deg);
   right: -16px;
-  border-right: 1px solid #03a8be;
+  border-right: 1px solid #383737;
   z-index: 1;
 }
 
@@ -84,7 +84,7 @@ nav li.active a:before, nav li.active a:after {
 }
 
 #main-section {
-  margin-top: 0px;
+  margin-top: -16px;
   height: 650px;
   border-radius: 50px;
   background: rgb(255, 255, 255);
